@@ -1,0 +1,44 @@
+cabal-version:      2.4
+name:               emoji-cli
+version:            0.1.0.0
+synopsis:           Emoji picker for the command line.
+
+-- A longer description of the package.
+-- description:
+homepage:
+
+-- A URL where users can report bugs.
+-- bug-reports:
+license:            MIT
+license-file:       LICENSE
+author:             Alexander Goussas
+maintainer:         goussasalexander@gmail.com
+
+-- A copyright notice.
+-- copyright:
+category:           Cli
+extra-source-files: CHANGELOG.md
+
+executable emoji-cli
+    main-is:          Main.hs
+    other-modules:    Emoji.Cli.Types
+                    , Emoji.Cli.Events
+                    , Emoji.Cli.Emoji
+                    , Emoji.Cli.UI
+                    , Emoji.Cli.Actions
+                    , Emoji.Cli.Options
+    build-depends:    base ^>=4.16.4.0
+                    , text
+                    , emojis
+                    , ansi-terminal
+                    , lens
+                    , Hclip
+                    , optparse-applicative
+    hs-source-dirs:   src
+    default-language: Haskell2010
+    default-extensions: OverloadedStrings
+                      , LambdaCase
+                      , MultiParamTypeClasses
+                      , FunctionalDependencies
+                      , FlexibleInstances
+                      , FlexibleContexts
