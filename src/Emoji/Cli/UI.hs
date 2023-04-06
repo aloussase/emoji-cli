@@ -34,7 +34,9 @@ showPromptLine state = do
     printColored ANSI.Vivid ANSI.Cyan "\xf054 "
     if not (T.null $ state^.query)
       then TIO.putStr $ state^.query
-      else printColored ANSI.Dull ANSI.Blue "Type here to start searching for emoji"
+      else do ANSI.setSGR [ANSI.SetPaletteColor ANSI.Foreground (ANSI.xterm24LevelGray 12)]
+              putStr "Type here to start searching for emoji"
+              ANSI.setSGR [ANSI.Reset]
 
 showHelpMessage :: (HasTerminalSize config TerminalSize, HasStartingPosition config CursorPosition) => config -> IO ()
 showHelpMessage config = atStatusBar config $ do
