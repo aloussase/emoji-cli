@@ -31,6 +31,7 @@ parserInfo = OA.info (OA.helper <*> options) $
             , "Controls:\n"
             , "- Scroll to the left:        Left arrow\n"
             , "- Scroll to the right:       Right arrow\n"
+            , "- Autocomplete:              Tab"
             , "- Copy the selected emoji:   Enter\n"
             , "- Quit:                      q\n"
             ]
