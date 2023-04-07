@@ -1,6 +1,7 @@
 #!/bin/sh
 
 exe=$(find dist-newstyle -type f -executable)
+basename=$(basename "$exe")
 version=$(git tag --list | head -n1)
 
 if [ -z "$version" ]; then
@@ -8,4 +9,5 @@ if [ -z "$version" ]; then
   exit 1
 fi
 
-tar -czvf "$exe" emoji-cli_linux_x86_64-"$version".tar.gz
+cp "$exe" "$basename"
+tar -czvf emoji-cli_linux_x86_64-"$version".tar.gz "$basename"
