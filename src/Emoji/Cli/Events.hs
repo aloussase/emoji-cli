@@ -8,6 +8,7 @@ data Event = EventQuit
            | EventMoveRight
            | EventMoveLeft
            | EventEnter
+           | EventCompleteSuggestion
            deriving Show
 
 getEvent :: IO Event
@@ -21,4 +22,5 @@ getEvent =
     'q'    -> pure EventQuit
     '\n'   -> pure EventEnter
     '\DEL' -> pure EventBackspace
+    '\t'   -> pure EventCompleteSuggestion
     c      -> pure $ EventInput c

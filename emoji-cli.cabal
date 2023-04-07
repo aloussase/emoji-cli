@@ -27,6 +27,7 @@ executable emoji-cli
                     , Emoji.Cli.UI
                     , Emoji.Cli.Actions
                     , Emoji.Cli.Options
+                    , Emoji.Cli.Suggestion
     build-depends:    base ^>=4.16.4.0
                     , text
                     , emojis

@@ -9,6 +9,7 @@ module Emoji.Cli.UI
 import           Control.Lens        (_2, ix, makeLenses, over, (&), (+~),
                                       (<+~), (^.), (^?))
 import           Control.Monad       (forM_, when)
+import           Data.Maybe          (fromMaybe)
 import           Data.Text           (Text)
 import qualified Data.Text           as T
 import qualified Data.Text.IO        as TIO
@@ -16,27 +17,38 @@ import qualified System.Console.ANSI as ANSI
 
 import           Emoji.Cli.Types
 
+
+printPlaceHolderText :: Text -> IO ()
+printPlaceHolderText text = do
+    ANSI.setSGR [ANSI.SetPaletteColor ANSI.Foreground (ANSI.xterm24LevelGray 12)]
+    TIO.putStr text
+    ANSI.setSGR [ANSI.Reset]
+
 printColored :: ANSI.ColorIntensity -> ANSI.Color -> Text -> IO ()
 printColored intensity color text = do
     ANSI.setSGR [ANSI.SetColor ANSI.Foreground intensity color]
     TIO.putStr text
     ANSI.setSGR [ANSI.Reset]
 
-atStatusBar :: (HasTerminalSize config TerminalSize, HasStartingPosition config CursorPosition) => config -> IO () -> IO ()
+atStatusBar ::
+    (HasTerminalSize config TerminalSize, HasStartingPosition config CursorPosition)
+    => config
+    -> IO ()
+    -> IO ()
 atStatusBar config action = do
     ANSI.setCursorPosition (config^.terminalSize.terminalSizeRows - 1) 0
     action
     ANSI.setCursorPosition (config^.startingPosition.cursorPositionRow)
                            (config^.startingPosition.cursorPositionColumn)
 
-showPromptLine :: (HasQuery state Text) => state -> IO ()
+showPromptLine :: (HasQuery state Text, HasCurrentSuggestion state (Maybe Text)) => state -> IO ()
 showPromptLine state = do
     printColored ANSI.Vivid ANSI.Cyan "\xf054 "
-    if not (T.null $ state^.query)
-      then TIO.putStr $ state^.query
-      else do ANSI.setSGR [ANSI.SetPaletteColor ANSI.Foreground (ANSI.xterm24LevelGray 12)]
-              putStr "Type here to start searching for emoji"
-              ANSI.setSGR [ANSI.Reset]
+    if T.null $ state^.query
+      then printPlaceHolderText "Type here to start searching for emoji"
+      else do let suggestion = fromMaybe "" (state^.currentSuggestion)
+              TIO.putStr $ state^.query
+              printPlaceHolderText suggestion
 
 showHelpMessage :: (HasTerminalSize config TerminalSize, HasStartingPosition config CursorPosition) => config -> IO ()
 showHelpMessage config = atStatusBar config $ do

@@ -15,11 +15,12 @@ data AppConfig = AppConfig
   }
 
 data AppState = AppState
-  { _appStateQuery          :: !Text
-  , _appStateCursorPosition :: !CursorPosition
-  , _appStateScrollOptions  :: !ScrollOptions
-  , _appStateEmojiList      :: ![Text]
-  , _appStatePrintStatusBar :: !(IO ())
+  { _appStateQuery             :: !Text
+  , _appStateCursorPosition    :: !CursorPosition
+  , _appStateScrollOptions     :: !ScrollOptions
+  , _appStateEmojiList         :: ![Text]
+  , _appStatePrintStatusBar    :: !(IO ())
+  , _appStateCurrentSuggestion :: !(Maybe Text)
   }
 
 data TerminalSize = TerminalSize

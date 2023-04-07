@@ -1,6 +1,7 @@
 module Emoji.Cli.Actions where
 
-import           Control.Lens    (ix, (%~), (&), (.~), (^.), (^?))
+import           Control.Lens    (ix, (%~), (&), (.~), (?~), (^.), (^?))
+import           Data.Maybe      (fromMaybe)
 import qualified Data.Text       as T
 import qualified Data.Text.IO    as TIO
 import           System.Exit     (exitSuccess)
@@ -49,3 +50,7 @@ copyEmojiToClipboard config state =
                     & printStatusBar
                     .~ UI.atStatusBar config (TIO.putStr $ selectedEmoji <> " was copied to the clipboard")
 
+completeSuggestion :: Action
+completeSuggestion _ state = pure $ state
+    & query %~ flip mappend (fromMaybe "" (state^.currentSuggestion))
+    & currentSuggestion .~ Nothing

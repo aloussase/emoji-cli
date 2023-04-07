@@ -1,7 +1,12 @@
 {-# LANGUAGE TupleSections #-}
-module Emoji.Cli.Emoji where
+module Emoji.Cli.Emoji
+(
+      getEmojisForQuery
+    , allEmojiAliases
+)
+where
 
-import           Data.Maybe (mapMaybe)
+import           Data.Maybe (catMaybes, mapMaybe)
 import           Data.Text  (Text)
 import qualified Data.Text  as T
 import           Text.Emoji
@@ -12,3 +17,6 @@ getEmojisForQuery query = map fst
                         . filter (\(_, aliases) -> any (T.isInfixOf query) aliases)
                         . mapMaybe (\e -> fmap (e,) (aliasesFromEmoji e))
                         $ baseEmojis
+
+allEmojiAliases :: [Text]
+allEmojiAliases = concat . mapMaybe aliasesFromEmoji $ baseEmojis

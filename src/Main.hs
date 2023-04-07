@@ -1,21 +1,23 @@
 {-# LANGUAGE ScopedTypeVariables #-}
 module Main (main) where
 
-import           Control.Exception   (bracket)
-import           Control.Lens        (view, (&), (+~), (-~), (.~), (<+~), (<-~),
-                                      (^.))
-import qualified Data.Text           as T
-import qualified Data.Text.IO        as TIO
-import qualified System.Console.ANSI as ANSI
+import           Control.Exception    (bracket)
+import           Control.Lens         (view, (&), (+~), (-~), (.~), (<+~),
+                                       (<-~), (^.))
+import qualified Data.Text            as T
+import qualified Data.Text.IO         as TIO
+import qualified System.Console.ANSI  as ANSI
+import           System.Exit          (exitSuccess)
 import           System.IO
 import           Text.Emoji
 
-import qualified Emoji.Cli.Actions   as Actions
-import qualified Emoji.Cli.Emoji     as Emoji
+import qualified Emoji.Cli.Actions    as Actions
+import qualified Emoji.Cli.Emoji      as Emoji
 import           Emoji.Cli.Events
-import           Emoji.Cli.Options   (oExitOnCopy, parseOptions)
+import           Emoji.Cli.Options    (oExitOnCopy, parseOptions)
+import           Emoji.Cli.Suggestion
 import           Emoji.Cli.Types
-import qualified Emoji.Cli.UI        as UI
+import qualified Emoji.Cli.UI         as UI
 
 initialState :: AppConfig -> AppState
 initialState appConfig =
@@ -27,36 +29,38 @@ initialState appConfig =
           (ScrollOptions 0 terminalColumns)
           []
           (UI.showHelpMessage appConfig)
+          Nothing
 
 app :: AppConfig -> IO ()
-app appConfig = loop (initialState appConfig)
-  where
+app config = loop (initialState config)
+    where
     loop :: AppState -> IO ()
-    loop currentState = do
-      ANSI.setCursorPosition (appConfig^.startingPosition.cursorPositionRow)
-                             (appConfig^.startingPosition.cursorPositionColumn)
+    loop state = do
+      ANSI.setCursorPosition (config^.startingPosition.cursorPositionRow)
+                             (config^.startingPosition.cursorPositionColumn)
       ANSI.clearFromCursorToScreenEnd
 
-      currentState^.printStatusBar
-      UI.showPromptLine currentState
+      UI.showPromptLine state
+      UI.showEmojis config state
+      state^.printStatusBar
 
-      let newEmojiList = Emoji.getEmojisForQuery (currentState^.query)
-          newState = currentState
-                        & emojiList .~ newEmojiList
-                        & scrollOptions.scrollOffset
-                        .~ (if newEmojiList /= currentState^.emojiList
-                                then 0
-                                else currentState^.scrollOptions.scrollOffset)
+      newState <- getEvent >>= \case
+          EventQuit      -> exitSuccess
+          EventEnter     -> Actions.copyEmojiToClipboard config state
+          EventInput c   -> Actions.appendCharacter c config state
+          EventMoveRight -> Actions.increaseScrollOffset config state
+          EventMoveLeft  -> Actions.decreaseScrollOffset config state
+          EventBackspace -> Actions.deleteCharacter config state
+          EventCompleteSuggestion -> Actions.completeSuggestion config state
 
-      UI.showEmojis appConfig newState
 
-      getEvent >>= \case
-          EventQuit      -> pure ()
-          EventEnter     -> loop =<< Actions.copyEmojiToClipboard appConfig newState
-          EventInput c   -> loop =<< Actions.appendCharacter c appConfig newState
-          EventMoveRight -> loop =<< Actions.increaseScrollOffset appConfig newState
-          EventMoveLeft  -> loop =<< Actions.decreaseScrollOffset appConfig newState
-          EventBackspace -> loop =<< Actions.deleteCharacter appConfig newState
+      let newEmojiList = Emoji.getEmojisForQuery (newState^.query)
+      loop $ newState & emojiList .~ newEmojiList
+                      & currentSuggestion .~ getSuggestionForPrompt (newState^.query)
+                      & scrollOptions.scrollOffset
+                      .~ (if newEmojiList /= state^.emojiList
+                            then 0
+                            else newState^.scrollOptions.scrollOffset)
 
 main :: IO ()
 main = bracket setup teardown app
@@ -70,7 +74,6 @@ main = bracket setup teardown app
         hSetBuffering stdout NoBuffering
         hSetEcho stdin False
         Just initialPosition@(row, col) <- ANSI.getCursorPosition
-        ANSI.setCursorPosition (row + 1) col
         Just (terminalRows, terminalCols) <- ANSI.getTerminalSize
         ANSI.hideCursor
         pure $ AppConfig
@@ -82,6 +85,8 @@ main = bracket setup teardown app
 
     teardown config = do
         ANSI.restoreCursor
+        ANSI.setCursorPosition (config^.startingPosition.cursorPositionRow)
+                               (config^.startingPosition.cursorPositionColumn)
         ANSI.clearFromCursorToScreenEnd
         hSetBuffering stdin $ config^.stdinBuffering
         hSetBuffering stdout $ config^.stdoutBuffering
