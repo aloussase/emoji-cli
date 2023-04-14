@@ -2,24 +2,19 @@ cabal-version:      2.4
 name:               emoji-cli
 version:            0.1.0.0
 synopsis:           Emoji picker for the command line.
-
--- A longer description of the package.
 -- description:
 homepage:
-
--- A URL where users can report bugs.
--- bug-reports:
+bug-reports:        https://github.com/aloussase/emoji-cli
 license:            MIT
 license-file:       LICENSE
 author:             Alexander Goussas
 maintainer:         goussasalexander@gmail.com
-
--- A copyright notice.
--- copyright:
+copyright:          Alexander Goussas 2023
 category:           Cli
-extra-source-files: CHANGELOG.md
+extra-source-files: README.md
 
 executable emoji-cli
+    ghc-options:    -Wall
     main-is:          Main.hs
     other-modules:    Emoji.Cli.Types
                     , Emoji.Cli.Events
@@ -28,6 +23,7 @@ executable emoji-cli
                     , Emoji.Cli.Actions
                     , Emoji.Cli.Options
                     , Emoji.Cli.Suggestion
+                    , Emoji.Cli.Config
     build-depends:    base ^>=4.16.4.0
                     , text
                     , emojis

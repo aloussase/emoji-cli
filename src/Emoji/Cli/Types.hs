@@ -2,16 +2,17 @@
 module Emoji.Cli.Types where
 
 import           Control.Lens
-import           Data.Text    (Text)
+import           Data.Text         (Text)
 import           System.IO
 
+import           Emoji.Cli.Options
 
 data AppConfig = AppConfig
   { _appConfigStartingPosition :: !CursorPosition
   , _appConfigStdoutBuffering  :: !BufferMode
   , _appConfigStdinBuffering   :: !BufferMode
   , _appConfigTerminalSize     :: !TerminalSize
-  , _appConfigExitOnCopy       :: !Bool
+  , _appConfigOptions          :: !Options
   }
 
 data AppState = AppState

@@ -11,3 +11,5 @@ fi
 
 cp "$exe" "$basename"
 tar -czvf emoji-cli_linux_x86_64-"$version".tar.gz "$basename"
+
+rm "$basename"

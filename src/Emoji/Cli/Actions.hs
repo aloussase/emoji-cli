@@ -1,17 +1,19 @@
+{-# LANGUAGE RankNTypes #-}
 module Emoji.Cli.Actions where
 
-import           Control.Lens    (ix, (%~), (&), (.~), (?~), (^.), (^?))
-import           Data.Maybe      (fromMaybe)
-import qualified Data.Text       as T
-import qualified Data.Text.IO    as TIO
-import           System.Exit     (exitSuccess)
-import qualified System.Hclip    as Hclip
+import           Control.Lens           (ix, (%~), (&), (.~), (?~), (^.), (^?))
+import           Control.Monad.IO.Class
+import           Data.Maybe             (fromMaybe)
+import qualified Data.Text              as T
+import qualified Data.Text.IO           as TIO
+import           System.Exit            (exitSuccess)
+import qualified System.Hclip           as Hclip
 
+import           Emoji.Cli.Options
 import           Emoji.Cli.Types
-import qualified Emoji.Cli.UI    as UI
+import qualified Emoji.Cli.UI           as UI
 
-type Action = AppConfig -> AppState -> IO AppState
-
+type Action = forall m. (MonadIO m) => AppConfig -> AppState -> m AppState
 
 appendCharacter :: Char -> Action
 appendCharacter c _ state = pure $ state & query %~ flip T.snoc c
@@ -42,9 +44,9 @@ decreaseScrollOffset config state =
 copyEmojiToClipboard :: Action
 copyEmojiToClipboard config state =
     let selectedEmoji = state ^. emojiList . ix (state^.scrollOptions.scrollOffset)
-     in do Hclip.setClipboard $ T.unpack selectedEmoji
-           if config^.exitOnCopy
-                then exitSuccess
+     in do liftIO $ Hclip.setClipboard $ T.unpack selectedEmoji
+           if oExitOnCopy (config^.options)
+                then liftIO exitSuccess
                 else pure
                     $ state
                     & printStatusBar
