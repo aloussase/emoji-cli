@@ -1,12 +1,14 @@
 <h1 align="center">emoji-cli</h1>
 
-<img alt="banner" src="./assets/banner.png" height="500" />
+<p align="center">Search for emoji and copy them to your clipboard.</p>
 
-Search for emoji and copy them to your clipboard.
+<img alt="banner" src="./assets/banner.png" height="300" />
+
+## Demo
 
 ![emoji-cli](./assets/emoji-cli.gif)
 
-## Install
+## Installation
 
 Grab a binary from the releases page or build with cabal:
 ```
