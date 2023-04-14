@@ -1,4 +1,6 @@
-# emoji-cli
+<h1 align="center">emoji-cli</h1>
+
+<img alt="banner" src="./assets/banner.png" height="500" />
 
 Search for emoji and copy them to your clipboard.
 
