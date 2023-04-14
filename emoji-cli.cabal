@@ -2,7 +2,7 @@ cabal-version:      2.4
 name:               emoji-cli
 version:            0.1.0.0
 synopsis:           Emoji picker for the command line.
--- description:
+description:        Search for emoji and copy them to your clipboard from the command line.
 homepage:
 bug-reports:        https://github.com/aloussase/emoji-cli
 license:            MIT
@@ -12,6 +12,10 @@ maintainer:         goussasalexander@gmail.com
 copyright:          Alexander Goussas 2023
 category:           Cli
 extra-source-files: README.md
+
+source-repository head
+  type: git
+  location: https://github.com/aloussase/emoji-cli
 
 executable emoji-cli
     ghc-options:    -Wall
