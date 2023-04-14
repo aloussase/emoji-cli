@@ -1,8 +1,11 @@
+<p align="center">
+  <img alt="banner" src="./assets/banner.png" height="200" />
+</p>
+
 <h1 align="center">emoji-cli</h1>
 
 <p align="center">Search for emoji and copy them to your clipboard.</p>
 
-<img alt="banner" src="./assets/banner.png" height="300" align="center" />
 
 ## Demo
 
