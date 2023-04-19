@@ -1,6 +1,6 @@
 module Emoji.Cli.Events where
 
-import           System.IO
+import           Data.Functor ((<&>))
 
 data Event = EventQuit
            | EventInput Char
@@ -14,12 +14,11 @@ data Event = EventQuit
 getEvent :: IO Event
 getEvent =
   getChar >>= \case
-    '\ESC' -> do
-      getChar >> getChar >>= \case
-        'C' -> pure EventMoveRight
-        'D' -> pure EventMoveLeft
-        c   -> pure $ EventInput c
-    'q'    -> pure EventQuit
+    '\ESC' -> do getChar >> getChar <&> \case
+                    'C' -> EventMoveRight
+                    'D' -> EventMoveLeft
+                    c   -> EventInput c
+    '\DC1' -> pure EventQuit
     '\n'   -> pure EventEnter
     '\DEL' -> pure EventBackspace
     '\t'   -> pure EventCompleteSuggestion
