@@ -6,9 +6,6 @@
 
 <p align="center">Search for emoji and copy them to your clipboard.</p>
 
-
-## Demo
-
 ![emoji-cli](./assets/emoji-cli.gif)
 
 ## Installation
@@ -25,7 +22,7 @@ cabal install
 - Type to search for an emoji by name
 - Press enter to copy the first emoji to the clipboard
 - Use the arrow keys to scroll the list of emoji
-- Press 'q' to exit
+- Use `Ctrl-q` to exit
 
 If you don't want the application to run interactively you can use the
 `--exit-on-copy` flag (or `-e`).
