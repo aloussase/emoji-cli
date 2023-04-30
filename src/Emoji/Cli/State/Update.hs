@@ -1,17 +1,29 @@
 {-# LANGUAGE RankNTypes #-}
-module Emoji.Cli.Actions where
+module Emoji.Cli.State.Update (updateState) where
 
-import           Control.Lens           (ix, (%~), (&), (.~), (?~), (^.), (^?))
-import           Control.Monad.IO.Class
+import           Control.Lens           (ix, (%~), (&), (.~), (^.))
+import           Control.Monad.IO.Class (MonadIO, liftIO)
 import           Data.Maybe             (fromMaybe)
 import qualified Data.Text              as T
 import qualified Data.Text.IO           as TIO
 import           System.Exit            (exitSuccess)
 import qualified System.Hclip           as Hclip
 
+import           Emoji.Cli.Config
+import           Emoji.Cli.Events
 import           Emoji.Cli.Options
-import           Emoji.Cli.Types
+import           Emoji.Cli.State
 import qualified Emoji.Cli.UI           as UI
+
+-- | 'updateState' returns a new state after running the appropriate action for a given 'Event'.
+updateState :: (MonadIO m) => AppConfig -> AppState -> Event -> m AppState
+updateState _ _ EventQuit = liftIO exitSuccess
+updateState config state EventEnter = copyEmojiToClipboard config state
+updateState config state (EventInput c) = appendCharacter c config state
+updateState config state EventMoveRight = increaseScrollOffset config state
+updateState config state EventMoveLeft = decreaseScrollOffset config state
+updateState config state EventBackspace = deleteCharacter config state
+updateState config state EventCompleteSuggestion = completeSuggestion config state
 
 type Action = forall m. (MonadIO m) => AppConfig -> AppState -> m AppState
 
@@ -25,7 +37,7 @@ deleteCharacter _ state = pure $
         else state
 
 increaseScrollOffset :: Action
-increaseScrollOffset config state =
+increaseScrollOffset _ state =
     let numberOfEmoji = length $ state^.emojiList
         maximumScrollOffset = min (state^.scrollOptions.scrollWindowSize) numberOfEmoji
         currentScrollOffset = state^.scrollOptions.scrollOffset
@@ -34,7 +46,7 @@ increaseScrollOffset config state =
         pure $ state & scrollOptions.scrollOffset .~ newScrollOffset
 
 decreaseScrollOffset :: Action
-decreaseScrollOffset config state =
+decreaseScrollOffset _ state =
     let currentScrollOffset = state^.scrollOptions.scrollOffset
         newScrollOffset = max (currentScrollOffset - 1) 0
      in

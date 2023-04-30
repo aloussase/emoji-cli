@@ -1,20 +1,53 @@
+{-# LANGUAGE TemplateHaskell #-}
 module Emoji.Cli.Config
 (
       setup
     , teardown
-    , initialState
+    -- * AppConfig
+    , AppConfig
+    -- * Lenses
+    , startingPosition
+    , stdoutBuffering
+    , stdinBuffering
+    , terminalSize
+    , options
+    -- * Fields
+    , HasStartingPosition
+    , HasStdoutBuffering
+    , HasStdinBuffering
+    , HasTerminalSize
+    , HasOptions
+    -- * TerminalSize
+    , TerminalSize
+    , terminalSizeRows
+    , terminalSizeColumns
 )
 where
 
 import           Control.Lens
 import           Control.Monad.IO.Class
-import           Data.Maybe             (fromJust)
-import qualified System.Console.ANSI    as ANSI
+import           Data.Maybe               (fromJust)
+import qualified System.Console.ANSI      as ANSI
 import           System.IO
 
+import           Emoji.Cli.CursorPosition
 import           Emoji.Cli.Options
-import           Emoji.Cli.Types
-import qualified Emoji.Cli.UI           as UI
+
+data AppConfig = AppConfig
+  { _appConfigStartingPosition :: !CursorPosition
+  , _appConfigStdoutBuffering  :: !BufferMode
+  , _appConfigStdinBuffering   :: !BufferMode
+  , _appConfigTerminalSize     :: !TerminalSize
+  , _appConfigOptions          :: !Options
+  }
+
+data TerminalSize = TerminalSize
+  { _terminalSizeRows    :: !Int
+  , _terminalSizeColumns :: !Int
+  }
+
+makeLenses ''TerminalSize
+makeFields ''AppConfig
 
 setupBuffering :: (MonadIO m) => Handle -> m BufferMode
 setupBuffering handle = liftIO $ hGetBuffering handle <* hSetBuffering handle NoBuffering
@@ -23,7 +56,7 @@ setupCursor :: (MonadIO m) => m CursorPosition
 setupCursor = do
     liftIO $ ANSI.saveCursor >> ANSI.hideCursor >> hSetEcho stdin False
     (row, col) <- fromJust <$> liftIO ANSI.getCursorPosition
-    return $ CursorPosition row col
+    return $ mkCursorPosition row col
 
 setupTerminalSize :: (MonadIO m) => m TerminalSize
 setupTerminalSize = do
@@ -47,15 +80,3 @@ teardown config = liftIO $ do
     hSetBuffering stdout $ config^.stdoutBuffering
     hSetEcho stdin True
     ANSI.showCursor
-
-initialState :: AppConfig -> AppState
-initialState config =
-    let terminalColumns = config^.terminalSize.terminalSizeColumns
-     in
-        AppState
-          ""
-          (view startingPosition $ config & startingPosition.cursorPositionRow +~ 1)
-          (ScrollOptions 0 terminalColumns)
-          []
-          (UI.showHelpMessage config)
-          Nothing

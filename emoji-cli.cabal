@@ -20,14 +20,15 @@ source-repository head
 executable emoji-cli
     ghc-options:    -Wall
     main-is:          Main.hs
-    other-modules:    Emoji.Cli.Types
-                    , Emoji.Cli.Events
+    other-modules:    Emoji.Cli.Events
                     , Emoji.Cli.Emoji
                     , Emoji.Cli.UI
-                    , Emoji.Cli.Actions
                     , Emoji.Cli.Options
                     , Emoji.Cli.Suggestion
                     , Emoji.Cli.Config
+                    , Emoji.Cli.State
+                    , Emoji.Cli.State.Update
+                    , Emoji.Cli.CursorPosition
     build-depends:    base                          ^>=4.16.4.0
                     , Hclip                         >= 3.0.0 && < 3.1
                     , text                          >= 1.2.5 && < 1.3

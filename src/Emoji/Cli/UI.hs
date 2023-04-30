@@ -6,17 +6,16 @@ module Emoji.Cli.UI
   , atStatusBar
 ) where
 
-import           Control.Lens        (_2, ix, makeLenses, over, (&), (+~),
-                                      (<+~), (^.), (^?))
-import           Control.Monad       (forM_, when)
-import           Data.Maybe          (fromMaybe)
-import           Data.Text           (Text)
-import qualified Data.Text           as T
-import qualified Data.Text.IO        as TIO
-import qualified System.Console.ANSI as ANSI
+import           Control.Lens
+import           Data.Maybe               (fromMaybe)
+import           Data.Text                (Text)
+import qualified Data.Text                as T
+import qualified Data.Text.IO             as TIO
+import qualified System.Console.ANSI      as ANSI
 
-import           Emoji.Cli.Types
-
+import           Emoji.Cli.Config
+import           Emoji.Cli.CursorPosition
+import           Emoji.Cli.State
 
 printPlaceHolderText :: Text -> IO ()
 printPlaceHolderText text = do
